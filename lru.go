@@ -70,11 +70,9 @@ func (l *lru) touch(key interface{}) {
 }
 
 func (l *lru) Invalidate(key interface{}) {
+	l.unbounded.Invalidate(key)
 	if vm, ok := l.recencyIndex[key]; ok {
-		l.unbounded.Invalidate(key)
-		if vm != nil {
-			l.recency.Remove(vm)
-		}
+		l.recency.Remove(vm)
 		delete(l.recencyIndex, key)
 	}
 }
