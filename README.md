@@ -89,7 +89,7 @@ import (
 
 func main() {
 	ctx := context.Background()
-	echoLru := cache.NewLRU(2, func(ctx context.Context, key interface{}) (value interface{}, err error) {
+	echoLru := cache.NewLRUItem(2, func(ctx context.Context, key interface{}) (value interface{}, err error) {
 		fmt.Printf("looked up: '%s'\n", key)
 		return key, nil
 	})

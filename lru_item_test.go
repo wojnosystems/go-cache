@@ -23,7 +23,7 @@ var _ = Describe("BoundedLru", func() {
 
 	When("not at capacity", func() {
 		BeforeEach(func() {
-			cacher = cache.NewLRU(10, valueMapperWrap(source))
+			cacher = cache.NewLRUItem(10, valueMapperWrap(source))
 		})
 
 		When("get", func() {
@@ -63,7 +63,7 @@ var _ = Describe("BoundedLru", func() {
 
 	When("at capacity", func() {
 		BeforeEach(func() {
-			cacher = cache.NewLRU(2, valueMapperWrap(source))
+			cacher = cache.NewLRUItem(2, valueMapperWrap(source))
 		})
 
 		When("get an uncached item", func() {
@@ -117,7 +117,7 @@ var _ = Describe("BoundedLru", func() {
 
 	When("capacity is zero", func() {
 		BeforeEach(func() {
-			cacher = cache.NewLRU(0, valueMapperWrap(source))
+			cacher = cache.NewLRUItem(0, valueMapperWrap(source))
 			source.EXPECT().Get(gomock.Any(), gomock.Eq("1")).Times(2).Return("1", nil)
 			_, _ = cacher.Get(ignoreCtx, "1")
 		})

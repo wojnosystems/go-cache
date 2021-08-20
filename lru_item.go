@@ -11,17 +11,17 @@ var ErrInsufficientCapacity = fmt.Errorf("insufficient capacity")
 // recencyIndexType maps keys to recency elements
 type recencyIndexType map[interface{}]*list.Element
 
-type lru struct {
+type lruItem struct {
 	*unbounded
 	maxItems     int
 	recency      *list.List // of interface{} keys, front = oldest, back = LRU
 	recencyIndex recencyIndexType
 }
 
-// NewLRU is a cache that evicts the least recently used (oldest) item when a new item needs to
+// NewLRUItem is a cache that evicts the least recently used (oldest) item when a new item needs to
 // be cached and there's insufficient space
-func NewLRU(maxItems int, valueFactory ValueMapper) GetInvalidater {
-	l := &lru{
+func NewLRUItem(maxItems int, valueFactory ValueMapper) GetInvalidater {
+	l := &lruItem{
 		maxItems:     maxItems,
 		recency:      list.New(),
 		recencyIndex: make(recencyIndexType),
@@ -42,17 +42,17 @@ func NewLRU(maxItems int, valueFactory ValueMapper) GetInvalidater {
 	return l
 }
 
-func (l *lru) isAtOrAboveCapacity() bool {
+func (l *lruItem) isAtOrAboveCapacity() bool {
 	return len(l.recencyIndex) >= l.maxItems
 }
 
-func (l *lru) removeLRU() {
+func (l *lruItem) removeLRU() {
 	if oldest := l.recency.Front(); oldest != nil {
 		l.Invalidate(oldest.Value)
 	}
 }
 
-func (l *lru) Get(ctx context.Context, key interface{}) (value interface{}, err error) {
+func (l *lruItem) Get(ctx context.Context, key interface{}) (value interface{}, err error) {
 	value, err = l.unbounded.Get(ctx, key)
 	if err != nil {
 		return
@@ -61,7 +61,7 @@ func (l *lru) Get(ctx context.Context, key interface{}) (value interface{}, err 
 	return
 }
 
-func (l *lru) touch(key interface{}) {
+func (l *lruItem) touch(key interface{}) {
 	vm, ok := l.recencyIndex[key]
 	if ok {
 		l.recency.Remove(vm)
@@ -69,7 +69,7 @@ func (l *lru) touch(key interface{}) {
 	l.recencyIndex[key] = l.recency.PushBack(key)
 }
 
-func (l *lru) Invalidate(key interface{}) {
+func (l *lruItem) Invalidate(key interface{}) {
 	l.unbounded.Invalidate(key)
 	if vm, ok := l.recencyIndex[key]; ok {
 		l.recency.Remove(vm)
