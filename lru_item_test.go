@@ -7,11 +7,11 @@ import (
 	"github.com/wojnosystems/go-cache"
 )
 
-var _ = Describe("BoundedLru", func() {
+var _ = Describe("LRUItem", func() {
 	var (
-		ctrl   *gomock.Controller
-		source *MockstatefulValueMapper
-		cacher cache.GetInvalidater
+		ctrl    *gomock.Controller
+		source  *MockstatefulValueMapper
+		subject cache.GetInvalidater
 	)
 	BeforeEach(func() {
 		ctrl = gomock.NewController(ginkgoTestReporter{})
@@ -23,7 +23,7 @@ var _ = Describe("BoundedLru", func() {
 
 	When("not at capacity", func() {
 		BeforeEach(func() {
-			cacher = cache.NewLRUItem(10, valueMapperWrap(source))
+			subject = cache.NewLRUItem(10, valueMapperWrap(source))
 		})
 
 		When("get", func() {
@@ -31,8 +31,8 @@ var _ = Describe("BoundedLru", func() {
 				source.EXPECT().Get(gomock.Any(), "1").Times(1).Return("1", nil)
 			})
 			It("is cached", func() {
-				Expect(cacher.Get(ignoreCtx, "1")).Should(Equal("1"))
-				Expect(cacher.Get(ignoreCtx, "1")).Should(Equal("1"))
+				Expect(subject.Get(ignoreCtx, "1")).Should(Equal("1"))
+				Expect(subject.Get(ignoreCtx, "1")).Should(Equal("1"))
 			})
 		})
 
@@ -40,12 +40,12 @@ var _ = Describe("BoundedLru", func() {
 			When("with elements", func() {
 				BeforeEach(func() {
 					source.EXPECT().Get(ignoreCtx, "1").Times(2).Return("1", nil)
-					_, _ = cacher.Get(ignoreCtx, "1")
+					_, _ = subject.Get(ignoreCtx, "1")
 				})
 
 				It("fetches a new item", func() {
-					cacher.Invalidate("1")
-					_, _ = cacher.Get(ignoreCtx, "1")
+					subject.Invalidate("1")
+					_, _ = subject.Get(ignoreCtx, "1")
 				})
 			})
 			When("without elements", func() {
@@ -54,8 +54,8 @@ var _ = Describe("BoundedLru", func() {
 				})
 
 				It("fetches a new item", func() {
-					cacher.Invalidate("1")
-					_, _ = cacher.Get(ignoreCtx, "1")
+					subject.Invalidate("1")
+					_, _ = subject.Get(ignoreCtx, "1")
 				})
 			})
 		})
@@ -63,7 +63,7 @@ var _ = Describe("BoundedLru", func() {
 
 	When("at capacity", func() {
 		BeforeEach(func() {
-			cacher = cache.NewLRUItem(2, valueMapperWrap(source))
+			subject = cache.NewLRUItem(2, valueMapperWrap(source))
 		})
 
 		When("get an uncached item", func() {
@@ -71,12 +71,12 @@ var _ = Describe("BoundedLru", func() {
 				source.EXPECT().Get(gomock.Any(), gomock.Eq("1")).Times(2).Return("1", nil)
 				source.EXPECT().Get(gomock.Any(), gomock.Eq("2")).Times(1).Return("2", nil)
 				source.EXPECT().Get(gomock.Any(), gomock.Eq("3")).Times(1).Return("3", nil)
-				_, _ = cacher.Get(ignoreCtx, "1")
-				_, _ = cacher.Get(ignoreCtx, "2")
+				_, _ = subject.Get(ignoreCtx, "1")
+				_, _ = subject.Get(ignoreCtx, "2")
 			})
 			It("removes oldest item", func() {
-				Expect(cacher.Get(ignoreCtx, "3")).Should(Equal("3"))
-				Expect(cacher.Get(ignoreCtx, "1")).Should(Equal("1"))
+				Expect(subject.Get(ignoreCtx, "3")).Should(Equal("3"))
+				Expect(subject.Get(ignoreCtx, "1")).Should(Equal("1"))
 			})
 		})
 
@@ -85,16 +85,16 @@ var _ = Describe("BoundedLru", func() {
 				source.EXPECT().Get(gomock.Any(), gomock.Eq("1")).Times(1).Return("1", nil)
 				source.EXPECT().Get(gomock.Any(), gomock.Eq("2")).Times(2).Return("2", nil)
 				source.EXPECT().Get(gomock.Any(), gomock.Eq("3")).Times(1).Return("3", nil)
-				_, _ = cacher.Get(ignoreCtx, "1")
-				_, _ = cacher.Get(ignoreCtx, "2")
+				_, _ = subject.Get(ignoreCtx, "1")
+				_, _ = subject.Get(ignoreCtx, "2")
 			})
 			It("is no longer least recently used", func() {
 				// refresh one
-				_, _ = cacher.Get(ignoreCtx, "1")
+				_, _ = subject.Get(ignoreCtx, "1")
 				// kick out two
-				_, _ = cacher.Get(ignoreCtx, "3")
+				_, _ = subject.Get(ignoreCtx, "3")
 				// reload 2
-				_, _ = cacher.Get(ignoreCtx, "2")
+				_, _ = subject.Get(ignoreCtx, "2")
 			})
 		})
 
@@ -103,26 +103,26 @@ var _ = Describe("BoundedLru", func() {
 				source.EXPECT().Get(gomock.Any(), gomock.Eq("1")).Times(1).Return("1", nil)
 				source.EXPECT().Get(gomock.Any(), gomock.Eq("2")).Times(1).Return("2", nil)
 				source.EXPECT().Get(gomock.Any(), gomock.Eq("3")).Times(1).Return("", intentionalErr)
-				_, _ = cacher.Get(ignoreCtx, "1")
-				_, _ = cacher.Get(ignoreCtx, "2")
+				_, _ = subject.Get(ignoreCtx, "1")
+				_, _ = subject.Get(ignoreCtx, "2")
 			})
 			It("does not evict", func() {
 				// fails to evict
-				_, _ = cacher.Get(ignoreCtx, "3")
+				_, _ = subject.Get(ignoreCtx, "3")
 				// should not call 1 again as it should still be cached
-				_, _ = cacher.Get(ignoreCtx, "1")
+				_, _ = subject.Get(ignoreCtx, "1")
 			})
 		})
 	})
 
 	When("capacity is zero", func() {
 		BeforeEach(func() {
-			cacher = cache.NewLRUItem(0, valueMapperWrap(source))
+			subject = cache.NewLRUItem(0, valueMapperWrap(source))
 			source.EXPECT().Get(gomock.Any(), gomock.Eq("1")).Times(2).Return("1", nil)
-			_, _ = cacher.Get(ignoreCtx, "1")
+			_, _ = subject.Get(ignoreCtx, "1")
 		})
 		It("does not insert", func() {
-			_, err := cacher.Get(ignoreCtx, "1")
+			_, err := subject.Get(ignoreCtx, "1")
 			Expect(err).Should(MatchError(cache.ErrInsufficientCapacity))
 		})
 	})
