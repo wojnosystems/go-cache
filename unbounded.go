@@ -9,6 +9,10 @@ type unbounded struct {
 	valueFactory ValueMapper
 }
 
+// NewUnbounded creates a cache without any internal limits on how many items
+// can be cached. It will grow, unbounded, until you stop using it.
+// While this is probably fine for testing or building up other caches,
+// you probably should not use this in production
 func NewUnbounded(valueFactory ValueMapper) GetInvalidater {
 	return newUnbounded(valueFactory)
 }

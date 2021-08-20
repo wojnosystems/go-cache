@@ -47,14 +47,22 @@ var _ = Describe("MaxLen", func() {
 			})
 		})
 		When("not empty", func() {
+			var (
+				startLen uint
+			)
 			BeforeEach(func() {
-				subject.Add(3)
+				startLen = 3
+				subject.Add(startLen)
 			})
 			It("can fit items small enough", func() {
 				Expect(subject.Add(1)).Should(BeTrue())
 			})
 			It("can't fit items that are too large", func() {
 				Expect(subject.Add(4)).Should(BeFalse())
+			})
+			It("removes items", func() {
+				subject.Remove(1)
+				Expect(subject.Add(max - (startLen - 1))).Should(BeTrue())
 			})
 		})
 		When("full", func() {

@@ -4,8 +4,8 @@ import "context"
 
 type Getter interface {
 	/*
-		Get a value from the cache. If missing, it will be loaded, then cached
-		if it exists it will be returned without attempting to load it.
+		Get a value from the cache. If missing, it will be loaded, then cached, then returned.
+		if it exists it will be returned without attempting to load it again.
 
 		ctx is passed because the underlying provider may need to make external calls
 		key of the value to look up in the cache
@@ -17,8 +17,8 @@ type Getter interface {
 
 type Invalidater interface {
 	/*
-		Invalidate marks a cached key as invalid. Value will be removed by the underlying cache before being retrieved next
-		key to invalidate. returns true if a key was removed, false if not
+		Invalidate marks a cached key as invalid. Value will be removed by the underlying cache
+		returns true if a key was removed, false if not
 	*/
 	Invalidate(key interface{}) bool
 }
