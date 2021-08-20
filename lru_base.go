@@ -26,7 +26,7 @@ func newLRUBase(cap uint, valueSizer valueMapSizer, valueMapper ValueMapper) *lr
 		if err != nil {
 			return
 		}
-		valueSize := valueSizer(value)
+		valueSize := l.valueSizer(value)
 		if l.limit.IsLargerThanCapacity(valueSize) {
 			return nil, ErrInsufficientCapacity
 		}
