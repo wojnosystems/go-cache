@@ -16,7 +16,7 @@ func byteLenFromInterface(byteSlice interface{}) uint {
 }
 
 type lruByte struct {
-	*lruBase
+	lruBase GetInvalidater
 }
 
 type ByteMapper func(ctx context.Context, key interface{}) (value []byte, err error)
@@ -47,4 +47,8 @@ func (b *lruByte) Get(ctx context.Context, key interface{}) (value []byte, err e
 		return
 	}
 	return iVal.([]byte), err
+}
+
+func (b *lruByte) Invalidate(key interface{}) {
+	b.lruBase.Invalidate(key)
 }

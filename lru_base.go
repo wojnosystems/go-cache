@@ -23,7 +23,7 @@ type lruBase struct {
 // cap: is the maximum "size" of this cache. The size is defined by you when you implement valueSizer
 // valueSizer: Added items will use the size returned by valueSizer. Items removed will use the same
 // valueMapper: looks up values based on keys
-func NewLRU(cap uint, valueSizer ValueSizer, valueMapper ValueMapper) *lruBase {
+func NewLRU(cap uint, valueSizer ValueSizer, valueMapper ValueMapper) GetInvalidater {
 	l := &lruBase{
 		tracker:    lru.NewTracker(),
 		limit:      capacity.NewMaxLen(cap),

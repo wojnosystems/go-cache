@@ -55,4 +55,15 @@ var _ = Describe("LruByte", func() {
 			Expect(err).ShouldNot(HaveOccurred())
 		})
 	})
+	When("invalidated", func() {
+		BeforeEach(func() {
+			source.EXPECT().Get(ignoreCtx, "20").Times(2).
+				Return(make([]byte, 20), nil)
+		})
+		It("forces a fetch", func() {
+			_, _ = subject.Get(ignoreCtx, "20")
+			subject.Invalidate("20")
+			_, _ = subject.Get(ignoreCtx, "20")
+		})
+	})
 })
