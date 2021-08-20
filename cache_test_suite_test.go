@@ -9,5 +9,5 @@ import (
 
 func TestStringKeyCache(t *testing.T) {
 	RegisterFailHandler(Fail)
-	RunSpecs(t, "StringKeyCache Suite")
+	RunSpecs(t, "Cache Suite")
 }

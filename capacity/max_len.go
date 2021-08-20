@@ -17,5 +17,5 @@ func (m *maxLen) HasCapacity(itemSize uint) bool {
 }
 
 func (m *maxLen) IsLargerThanCapacity(itemSize uint) bool {
-	return itemSize <= m.capacity
+	return m.capacity < itemSize
 }

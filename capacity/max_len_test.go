@@ -18,7 +18,7 @@ var _ = Describe("MaxLen", func() {
 			})
 		})
 		It("can't fit anything", func() {
-			Expect(subject.IsLargerThanCapacity(1)).Should(BeFalse())
+			Expect(subject.IsLargerThanCapacity(1)).Should(BeTrue())
 		})
 		It("can't fit", func() {
 			Expect(subject.HasCapacity(1)).Should(BeFalse())
@@ -34,13 +34,13 @@ var _ = Describe("MaxLen", func() {
 		})
 		When("empty", func() {
 			It("can fit items smaller than capacity", func() {
-				Expect(subject.IsLargerThanCapacity(1)).Should(BeTrue())
+				Expect(subject.IsLargerThanCapacity(1)).Should(BeFalse())
 			})
 			It("can fit item exactly capacity", func() {
-				Expect(subject.IsLargerThanCapacity(max)).Should(BeTrue())
+				Expect(subject.IsLargerThanCapacity(max)).Should(BeFalse())
 			})
 			It("can't fit items larger than capacity", func() {
-				Expect(subject.IsLargerThanCapacity(max + 1)).Should(BeFalse())
+				Expect(subject.IsLargerThanCapacity(max + 1)).Should(BeTrue())
 			})
 		})
 		When("not empty", func() {
