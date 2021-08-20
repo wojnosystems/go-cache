@@ -194,7 +194,13 @@ Allows developers to remove items from the cache. For the unbounded cache, it wi
 
 Generally, you don't need to expose this to developers. This is exposed to you in case you wish to create your own sub-classes of caches and need to control this.
 
-## Getter
+# Building your own
+
+This library is intended to allow you to build your own caches that behave the way you want. Suppose you need a cache that has a different usage pattern than Least Recently Used.
+
+You can use the NewLRUBase as a start, or you can use Unbounded and build up from there. Maybe you need to restrict both the number and size of items in memory? You can start with the NewLRUBase and create a custom capacity manager and tracker.
+
+Use the NewLRUItem and NewLRUByte as an example of how to extend and customize the tools provided herein.
 
 # FAQ's
 
