@@ -18,10 +18,9 @@ type Getter interface {
 type Invalidater interface {
 	/*
 		Invalidate marks a cached key as invalid. Value will be removed by the underlying cache before being retrieved next
-
-		key to invalidate
+		key to invalidate. returns true if a key was removed, false if not
 	*/
-	Invalidate(key interface{})
+	Invalidate(key interface{}) bool
 }
 
 type GetInvalidater interface {

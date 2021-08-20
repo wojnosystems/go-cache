@@ -1,21 +1,36 @@
 package capacity
 
 type maxLen struct {
-	capacity uint
-	lenGet   lenGetter
+	cap uint
+	len uint
 }
 
-func NewMaxLen(capacity uint, lenGet lenGetter) Tracker {
+func NewMaxLen(cap uint) TrackMutator {
 	return &maxLen{
-		capacity: capacity,
-		lenGet:   lenGet,
+		cap: cap,
 	}
 }
 
-func (m *maxLen) HasCapacity(itemSize uint) bool {
-	return m.lenGet()+itemSize <= m.capacity
+func (m *maxLen) IsLargerThanCapacity(itemSize uint) bool {
+	return m.cap < itemSize
 }
 
-func (m *maxLen) IsLargerThanCapacity(itemSize uint) bool {
-	return m.capacity < itemSize
+func (m *maxLen) Add(amount uint) bool {
+	if !m.hasCapacity(amount) {
+		return false
+	}
+	m.len += amount
+	return true
+}
+
+func (m *maxLen) hasCapacity(itemSize uint) bool {
+	return m.len+itemSize <= m.cap
+}
+
+func (m *maxLen) Remove(amount uint) {
+	if m.len < amount {
+		m.len = 0
+	} else {
+		m.len = m.len - amount
+	}
 }

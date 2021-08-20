@@ -8,29 +8,24 @@ import (
 
 var _ = Describe("MaxLen", func() {
 	var (
-		mockLen uint
-		subject capacity.Tracker
+		subject capacity.TrackMutator
 	)
 	When("no capacity", func() {
 		BeforeEach(func() {
-			subject = capacity.NewMaxLen(0, func() uint {
-				return mockLen
-			})
+			subject = capacity.NewMaxLen(0)
 		})
 		It("can't fit anything", func() {
 			Expect(subject.IsLargerThanCapacity(1)).Should(BeTrue())
 		})
 		It("can't fit", func() {
-			Expect(subject.HasCapacity(1)).Should(BeFalse())
+			Expect(subject.Add(1)).Should(BeFalse())
 		})
 	})
 
 	When("non-zero capacity", func() {
 		max := uint(5)
 		BeforeEach(func() {
-			subject = capacity.NewMaxLen(max, func() uint {
-				return mockLen
-			})
+			subject = capacity.NewMaxLen(max)
 		})
 		When("empty", func() {
 			It("can fit items smaller than capacity", func() {
@@ -42,24 +37,35 @@ var _ = Describe("MaxLen", func() {
 			It("can't fit items larger than capacity", func() {
 				Expect(subject.IsLargerThanCapacity(max + 1)).Should(BeTrue())
 			})
+			It("adds item", func() {
+				Expect(subject.Add(max)).Should(BeTrue())
+			})
+			It("does not underflow", func() {
+				subject.Remove(max + 100)
+				Expect(subject.Add(max)).Should(BeTrue())
+				Expect(subject.Add(max)).Should(BeFalse())
+			})
 		})
 		When("not empty", func() {
 			BeforeEach(func() {
-				mockLen = 3
+				subject.Add(3)
 			})
 			It("can fit items small enough", func() {
-				Expect(subject.HasCapacity(1)).Should(BeTrue())
+				Expect(subject.Add(1)).Should(BeTrue())
 			})
 			It("can't fit items that are too large", func() {
-				Expect(subject.HasCapacity(4)).Should(BeFalse())
+				Expect(subject.Add(4)).Should(BeFalse())
 			})
 		})
 		When("full", func() {
 			BeforeEach(func() {
-				mockLen = max
+				subject.Add(max)
 			})
 			It("can't fit anything'", func() {
-				Expect(subject.HasCapacity(1)).Should(BeFalse())
+				Expect(subject.Add(1)).Should(BeFalse())
+			})
+			It("won't add the value'", func() {
+				Expect(subject.Add(1)).Should(BeFalse())
 			})
 		})
 	})
