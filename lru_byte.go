@@ -22,10 +22,12 @@ type lruByte struct {
 type ByteMapper func(ctx context.Context, key interface{}) (value []byte, err error)
 
 // NewLRUByte stores byte slices in a bounded LRU. Oldest items are removed to make
-// space for new items. byte slice capacity is used to determine the size an entry takes up
+// space for new items. byte slice capacity is used to determine the size an entry takes up.
+//
+// maxBytes: cache will not hold more bytes than this value
 func NewLRUByte(maxBytes uint, valueMapper ByteMapper) ByteGetInvalidator {
 	l := &lruByte{
-		lruBase: newLRUBase(maxBytes,
+		lruBase: NewLRU(maxBytes,
 			byteLenFromInterface,
 			func(ctx context.Context, key interface{}) (value interface{}, err error) {
 

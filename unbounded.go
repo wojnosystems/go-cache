@@ -37,9 +37,6 @@ func (u *unbounded) Get(ctx context.Context, key interface{}) (value interface{}
 	return
 }
 
-func (u *unbounded) Invalidate(key interface{}) (ok bool) {
-	if _, ok = u.cache[key]; ok {
-		delete(u.cache, key)
-	}
-	return
+func (u *unbounded) Invalidate(key interface{}) {
+	delete(u.cache, key)
 }

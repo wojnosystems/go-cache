@@ -178,10 +178,30 @@ The above program will look up google.com and wojno.com and output:
 
 Meaning it only looked up each page once and always returned the value in the cache when it was available.
 
-# How do I clear the cache?
+# Interfaces and controlling usage
+
+All caches support the "Getter" and "Invalidater" interfaces, with the LRUByte having a similar method that returns a byte array instead of an `interface{}` value.
+
+## Getter
+
+Allows developers to simply request items from the cache and to be auto-loaded into the cache if missing. It does not allow them to delete items from the cache.
+
+Generally, you want to use this interface type when using caches to simplify the interface for developers using caches, but not maintaining or building new cache storage systems.
+
+## Invalidater
+
+Allows developers to remove items from the cache. For the unbounded cache, it will free items. For the LRU caches, it will also perform the tracking and house keeping.
+
+Generally, you don't need to expose this to developers. This is exposed to you in case you wish to create your own sub-classes of caches and need to control this.
+
+## Getter
+
+# FAQ's
+
+## How do I clear the cache?
 
 Just make a new one :).
 
-# Is this thread safe?
+## Is this thread safe?
 
 No.

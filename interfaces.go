@@ -17,10 +17,10 @@ type Getter interface {
 
 type Invalidater interface {
 	/*
-		Invalidate marks a cached key as invalid. Value will be removed by the underlying cache
-		returns true if a key was removed, false if not
+			Invalidate marks a cached key as invalid. The next request for this key is guaranteed to be a fresh load
+		however, implementers are under no obligation to clear the cached item immediately, it can be deferred
 	*/
-	Invalidate(key interface{}) bool
+	Invalidate(key interface{})
 }
 
 type GetInvalidater interface {
@@ -30,5 +30,8 @@ type GetInvalidater interface {
 
 /*
 ValueMapper is the method that allows the cache to obtain uncached values
+
+ctx: the context passed to Get calls by the caller
+key: passed to Get calls by the caller
 */
 type ValueMapper func(ctx context.Context, key interface{}) (value interface{}, err error)
